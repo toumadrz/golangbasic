@@ -88,3 +88,21 @@ func DeleteUser(id int) error {
 	_, err := db.Exec("DELETE FROM public.Users WHERE id=$1;", id)
 	return err
 }
+
+func CheckEmail(email string) (int, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM Users WHERE email = $1", email).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+	return count, nil
+}
+
+func CheckId(id int) (int, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM Users WHERE id = $1", id).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+	return count, nil
+}

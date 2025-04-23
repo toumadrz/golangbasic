@@ -95,16 +95,16 @@ func createUser(c *fiber.Ctx) error {
 	}
 
 	// เช็ค email ซ้ำ
-	var count int
-	err := db.QueryRow("SELECT COUNT(*) FROM Users WHERE email = $1", u.Email).Scan(&count)
+	count, err := CheckEmail(u.Email)
 	if err != nil {
-		return err
+		log.Println("Check email duplicate error:", err)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-
 	// ถ้า count มากกว่า 0 แปลว่า email ซ้ำ
 	if count > 0 {
 		return c.SendString("duplicate email")
 	}
+
 	// email ไม่ซ้ำ จึงcreateuser
 	user, err := CreateUser(*u)
 	if err != nil {
@@ -143,10 +143,9 @@ func deleteUser(c *fiber.Ctx) error {
 	}
 
 	// เช็คว่ามีidไหม
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM Users WHERE id = $1", Id).Scan(&count)
+	count, err := CheckId(Id)
 	if err != nil {
-		return err
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// ถ้า count <= 0 แปลว่า ไม่มี id นี้
